@@ -2,10 +2,10 @@
 ![Screenshot_1717311820](https://github.com/LeDat2510/Cook_App/assets/166104453/f6ba2cc2-ead7-43ee-84e9-40eb282fc26e)
 
 # Giao diện đăng nhập: 
-![dang nhap](https://github.com/LeDat2510/Cook_App/assets/166104453/ea94d27c-a445-4531-bff9-fe67e465aede)
+![Screenshot_1717314902](https://github.com/LeDat2510/Cook_App/assets/166104453/d48208a3-7bea-4be2-8274-2c7389645a13)
 
 # Giao diện đăng ký:
-![Dang ky](https://github.com/LeDat2510/Cook_App/assets/166104453/23e32809-2008-4ff7-af04-9ce4be92ff17)
+![Screenshot_1717314906](https://github.com/LeDat2510/Cook_App/assets/166104453/45ae0692-a785-4802-9b5e-147a710d07df)
 
 # Giao diện trang chủ:
 ![Screenshot_1717312246](https://github.com/LeDat2510/Cook_App/assets/166104453/f0107e3a-d882-46a2-b68b-f7fb0b16a3a8)
@@ -42,7 +42,7 @@
 
 # Giao diện thêm, sửa công thức:
 ![Screenshot_1717312717](https://github.com/LeDat2510/Cook_App/assets/166104453/adbb4ee8-39e0-41a8-aaca-fac87674ed5a)
-![them, sua mon an](https://github.com/LeDat2510/Cook_App/assets/166104453/868d34f1-daee-4159-a658-fa67221006f2)
+![Screenshot_1717314964](https://github.com/LeDat2510/Cook_App/assets/166104453/03a8159e-a7fd-440d-b344-48ff56ae1a26)
 
 # Giao diện thêm, sửa blog:
 ![Screenshot_1717313944](https://github.com/LeDat2510/Cook_App/assets/166104453/851e1286-e4b7-4b24-ad38-db8508cc302c)
