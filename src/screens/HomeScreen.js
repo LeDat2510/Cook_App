@@ -46,7 +46,6 @@ const HomeScreen = ({ navigation }) => {
           }} className="space-y-6 pt-5"
         >
 
-          {/* Avatar */}
           <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
             <View className="mx-4 flex-row justify-between items-center">
               <AdjustmentsHorizontalIcon size={hp(4)} color={"gray"} />
@@ -66,7 +65,6 @@ const HomeScreen = ({ navigation }) => {
             </View>
           </TouchableOpacity>
 
-          {/*Headlines */}
           <View className="mx-4 space-y-1 mb-2">
             <View>
               <Text
@@ -88,7 +86,6 @@ const HomeScreen = ({ navigation }) => {
             </Text>
           </View>
 
-          {/*Search Bar */}
           <View className="mx-4 flex-row items-center border rounded-xl border-black p-[6px]">
             <View className="bg-white rounded-full p-2">
               <TouchableOpacity onPress={handleSearch}>

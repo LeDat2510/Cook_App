@@ -2,14 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, SafeAreaView, ScrollView, Image, TextInput, TouchableOpacity } from 'react-native';
 import { MagnifyingGlassIcon } from "react-native-heroicons/outline";
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { useRoute } from '@react-navigation/native';
-import Recipes from '../components/Recipes';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
-import { AddSearchHistory, searchFoodByName } from '../services/UserDataServices';
+import { AddSearchHistory, CheckSearchContent, searchFoodByName, updateSearchContent } from '../services/UserDataServices';
 import RecipesSearch from '../components/RecipesSearch';
-import { getFoodDataApprove } from '../services/FoodDataServices';
-import { Appbar } from 'react-native-paper';
 import firebase from '@react-native-firebase/firestore'
 import { useSelector } from 'react-redux';
 
@@ -20,17 +16,30 @@ const SearchResultScreen = ({ route }) => {
     const [inputText, setInputText] = useState(value);
     const [pressSearch, setPressSearch] = useState(false);
     const uid = useSelector(state => state.userData.uid);
+    const [check, setCheck] = useState(false);
 
-    const handleOnSubmitEditing = async (text) => {
+    useEffect(() => {
+        const checkSearchContent = CheckSearchContent(uid, inputText, (data) => {
+            setCheck(data);
+        })
+        return checkSearchContent;
+    }, [inputText, uid])
+
+    const handleValueSearch = async (text) => {
+        if (check) {
+            await updateSearchContent(inputText, uid)
+        }
+        else {
+            const data = {
+                id_user: uid,
+                search_content: inputText,
+                date_search: firebase.Timestamp.now()
+            }
+            await AddSearchHistory(data);
+        }
         setInputText(text);
         setPressSearch(true);
-        const data = {
-            id_user: uid,
-            search_content: inputText,
-            date_search: firebase.Timestamp.now()
-          }
-        await AddSearchHistory(data);
-    };
+    }
 
     const resetPress = () => {
         setPressSearch(false)
@@ -57,7 +66,7 @@ const SearchResultScreen = ({ route }) => {
 
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 8, borderWidth: 1, borderRadius: 10, borderColor: 'black', flex: 1, marginRight: 20 }}>
                             <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 4 }}>
-                                <TouchableOpacity onPress={handleOnSubmitEditing}>
+                                <TouchableOpacity onPress={handleValueSearch}>
                                     <MagnifyingGlassIcon
                                         size={hp(2.5)}
                                         color={"gray"}
@@ -77,12 +86,11 @@ const SearchResultScreen = ({ route }) => {
                                 value={inputText}
                                 onChangeText={setInputText}
                                 returnKeyType='search'
-                                onSubmitEditing={() => handleOnSubmitEditing(inputText)}
+                                onSubmitEditing={() => handleValueSearch(inputText)}
                             />
                         </View>
                     </View>
 
-                    {/*Recipes */}
                     <View>
                         <RecipesSearch SearchValue={inputText} pressSearch={pressSearch} resetPress={resetPress} />
                     </View>

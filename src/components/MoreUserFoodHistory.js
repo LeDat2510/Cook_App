@@ -3,9 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import MansonryList from '@react-native-seoul/masonry-list'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import { deleteSearchHistoryData, deleteUserFoodHistoryData, getAllSearchHistoryData, getSearchHistoryData } from '../services/UserDataServices';
-import Entypo from 'react-native-vector-icons/Entypo'
+import { deleteUserFoodHistoryData } from '../services/UserDataServices';
 import { getAllFoodDataInUserFoodHistory } from '../services/FoodDataServices';
 import { getUserData } from '../services/UserDataServices';
 import { IconButton } from 'react-native-paper';
@@ -35,17 +33,14 @@ const MoreUserFoodHistory = () => {
                     numColumns={2}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item, i }) => <RecipeCard item={item} index={i} navigation={navigation} />}
-                    //refreshing={isLoadingNext}
-                    //onRefresh={() => refetch({first: ITEM_CNT})}
                     onEndReachedThreshold={0.1}
-                //onEndReached={() => loadNext(ITEM_CNT)}
                 />
             </View>
         </View>
     );
 };
 
-const RecipeCard = ({ item, index, navigation }) => {
+const RecipeCard = ({ item, navigation }) => {
 
     const uid = useSelector(state => state.userData.uid);
 
@@ -62,7 +57,6 @@ const RecipeCard = ({ item, index, navigation }) => {
         return data;
     }, [item.user_id])
 
-    let isEven = index % 2 == 0;
     return (
         <Pressable onPress={() => navigation.navigate('RecipeDetail', { idmonan: item.idmonan, item })}>
             <View style={styles.item}>
@@ -86,13 +80,17 @@ const RecipeCard = ({ item, index, navigation }) => {
                     <Text style={styles.itemText} numberOfLines={2}>{item.food_name}</Text>
                 </View>
                 <View style={styles.userInfoContainer}>
-                    <Image
-                        source={{
-                            uri: userImage
-                        }}
-                        style={styles.userImage}
-                        resizeMode="cover"
-                    />
+                    {
+                        userImage && (
+                            <Image
+                                source={{
+                                    uri: userImage
+                                }}
+                                style={styles.userImage}
+                                resizeMode="cover"
+                            />
+                        )
+                    }
                     <Text style={styles.userName} numberOfLines={1}>{userName}</Text>
                 </View>
             </View>
@@ -101,12 +99,6 @@ const RecipeCard = ({ item, index, navigation }) => {
 }
 
 const styles = StyleSheet.create({
-    title: {
-        fontSize: 20,
-        color: '#1d1d1d',
-        flex: 1,
-        fontWeight: 'bold',
-    },
     item: {
         margin: 10,
         borderRadius: 10,
@@ -162,14 +154,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         flex: 1
     },
-    loadMoreButton: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        flex: 1
-    },
-    loadMoreText: {
-        color: '#949391'
-    }
 })
 
 export default MoreUserFoodHistory

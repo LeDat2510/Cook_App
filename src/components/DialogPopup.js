@@ -1,6 +1,5 @@
 import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Dialog, Portal } from 'react-native-paper'
 import { deleteAllSearchHistoryData, deleteAllUserFoodHistoryData } from '../services/UserDataServices'
 

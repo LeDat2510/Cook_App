@@ -29,6 +29,20 @@ export const deleteBlogData = async (uid) => {
     }
 }
 
+export const UserTotalBlog = (id, callback) => {
+    try {
+        const collectionRef = firestore().collection('Blog');
+
+        return collectionRef.where('id_user', '==', id).where('status', '==', 'Approve')
+            .onSnapshot((snapshot) => {
+                const total = snapshot.size;
+                callback(total);
+            })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const deleteBlogDataInApproveBlog = async (uid) => {
     try {
         const collectionRef = firestore().collection('ApproveBlog');
@@ -185,15 +199,6 @@ export const AddToBlogLikes = async (data) => {
     }
 }
 
-export const updateNumLike = async (id, updateData) => {
-    try {
-        const collectionRef = firestore().collection('Blog').doc(id);
-        await collectionRef.update({ num_like: updateData });
-    } catch (error) {
-        console.log(error)
-    }
-}
-
 export const DeleteFromBlogLikes = async (idBlog, userId) => {
     try {
         const collectionRef = firestore().collection('BlogLikes')
@@ -229,6 +234,21 @@ export const CheckUserLike = (userId, idBlog, callback) => {
             callback(false);
         });
 }
+
+export const getBlogLikeCount = (idBlog, callback) => {
+    try {
+        const collectionRef = firestore().collection("BlogLikes");
+        const query = collectionRef.where("id_blog", "==", idBlog);
+
+        return query.onSnapshot((querySnapshot) => {
+            const count = querySnapshot.size;
+            callback(count);
+        });
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+};
 
 export const getBlogCommentCount = (idBlog, callback) => {
     try {
@@ -381,6 +401,63 @@ export const AddToReplyBlogCommentLikes = async (data) => {
         console.log('Thêm vào bảng thành công ');
     } catch (error) {
         console.error('Lỗi khi thêm vào bảng:', error);
+    }
+}
+
+export const getPosterBlogCount = (uid, callback) => {
+    try {
+        const collectionRef = firestore().collection('Blog');
+        return collectionRef.where('id_user', '==', uid).where('status', '==', 'Approve').onSnapshot((snapShot) => {
+            callback(snapShot.size);
+        })
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}
+
+export const getAllPosterBlogData = (uid, callback) => {
+    try 
+    {
+        const collectionRef = firestore().collection('Blog');
+        
+        return collectionRef.where('id_user', '==', uid).where('status', '==', 'Approve')
+        .onSnapshot((snapShot) => {
+            const blog = []
+            snapShot.forEach((doc) => {
+                const data = doc.data();
+                const idblog = doc.id;
+                blog.push({idblog, ...data})
+            })
+            blog.sort((a, b) => b.date_posted - a.date_posted);
+            callback(blog);
+        })
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}
+
+export const getPosterBlogData = (uid, callback) => {
+    try 
+    {
+        const collectionRef = firestore().collection('Blog');
+        
+        return collectionRef.where('id_user', '==', uid).where('status', '==', 'Approve')
+        .onSnapshot((snapShot) => {
+            const blog = []
+            snapShot.forEach((doc) => {
+                const data = doc.data();
+                const idblog = doc.id;
+                blog.push({idblog, ...data})
+            })
+            blog.sort((a, b) => b.date_posted - a.date_posted);
+            const blogData = blog.slice(0, 6);
+            callback(blogData);
+        })
+    } catch (error) {
+        console.log(error)
+        return []
     }
 }
 

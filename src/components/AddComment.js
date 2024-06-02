@@ -1,24 +1,39 @@
 import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import React, { useContext, useState } from 'react'
-import { addCommentData } from '../services/BlogDataServices';
+import { addCommentData, getBlogCommentCount, getReplyBlogCommentCount, updateNumComment } from '../services/BlogDataServices';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { useSelector } from 'react-redux';
 import firestore from '@react-native-firebase/firestore';
+import { addCommentFoodData } from '../services/FoodDataServices';
 
-const AddCommentBlog = ({idblog}) => {
+const AddComment = ({idblog, idfood}) => {
 
     const uid = useSelector(state => state.userData.uid);
     const [commentText, setCommentText] = useState('');
 
     const addComment = async () => {
-        const NewComment = {
-            id_blog: idblog,
-            id_user: uid,
-            comment_content: commentText,
-            date_comment: firestore.Timestamp.now(),
+        if(idblog)
+        {
+            const NewComment = {
+                id_blog: idblog,
+                id_user: uid,
+                comment_content: commentText,
+                date_comment: firestore.Timestamp.now(),
+            }
+            await addCommentData(NewComment);
+            console.log("Thêm comment thành công");
         }
-        await addCommentData(NewComment);
-        console.log("Thêm comment thành công");
+        else
+        {
+            const NewComment = {
+                id_food: idfood,
+                id_user: uid,
+                comment_content: commentText,
+                date_comment: firestore.Timestamp.now(),
+            }
+            await addCommentFoodData(NewComment);
+            console.log("Thêm comment thành công");
+        }
     }
 
     return (
@@ -41,4 +56,4 @@ const AddCommentBlog = ({idblog}) => {
     )
 }
 
-export default AddCommentBlog
+export default AddComment

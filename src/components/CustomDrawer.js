@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { UserTotalRecipes, getUserData } from '../services/UserDataServices';
 import { LogoutAction } from '../store/UserAction';
 import { useDispatch, useSelector } from 'react-redux';
+import { UserTotalBlog } from '../services/BlogDataServices';
 
 const CustomDrawer = (props) => {
 
@@ -13,6 +14,8 @@ const CustomDrawer = (props) => {
     const [userName, setUserName] = useState("");
     const [userImage, setUserImage] = useState("");
     const [totalRecipes, setTotalRecipes] = useState(0);
+    const [totalBlog, setTotalBlog] = useState(0);
+    const total = totalRecipes + totalBlog;
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -30,7 +33,13 @@ const CustomDrawer = (props) => {
         const totalRecipes = UserTotalRecipes(uid, (data) => {
             setTotalRecipes(data)
         })
-        return totalRecipes
+        const totalBlog = UserTotalBlog(uid, (data) => {
+            setTotalBlog(data)
+        })
+        return () => {
+            totalRecipes();
+            totalBlog();
+        }
     }, [uid])
 
 
@@ -58,7 +67,7 @@ const CustomDrawer = (props) => {
                     </Text>
                     <View style={{ flexDirection: 'row' }}>
                         <Text style={{ color: '#fff' }} className="font-medium ml-3 mr-2">
-                            {totalRecipes} bài đăng
+                            {total} bài đăng
                         </Text>
                         <Ionicons name='create-outline' size={14} color={'#fff'} />
                     </View>

@@ -9,17 +9,29 @@ import { getUserData } from '../services/UserDataServices'
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useSelector } from 'react-redux';
+import { AddToCommentFoodLikes, CheckUserLikeCommentFood, DeleteFromCommentFoodLikes, getAllCommentFoodData, getCommentFoodLikeCount, getReplyFoodCommentCount } from '../services/FoodDataServices';
 
-const BlogComment = ({ idblog }) => {
+const Comment = ({ idblog, idfood }) => {
+
     const [commentData, setCommentData] = useState([]);
     const navigation = useNavigation();
 
-    useEffect(() => {
-        const fetchCommentData = getAllCommentData(idblog, (data) => {
-            setCommentData(data);
-        })
-        return fetchCommentData;
-    }, [idblog])
+    if (idblog) {
+        useEffect(() => {
+            const fetchCommentData = getAllCommentData(idblog, (data) => {
+                setCommentData(data);
+            })
+            return fetchCommentData;
+        }, [idblog])
+    }
+    else {
+        useEffect(() => {
+            const fetchCommentData = getAllCommentFoodData(idfood, (data) => {
+                setCommentData(data);
+            })
+            return fetchCommentData;
+        }, [idfood])
+    }
 
     return (
         <View className="mb-2">
@@ -40,13 +52,15 @@ const BlogComment = ({ idblog }) => {
 }
 
 const Card = ({ item, navigation }) => {
+
     const uid = useSelector(state => state.userData.uid);
     const [userName, setUserName] = useState('');
     const [userImage, setUserImage] = useState('');
 
     const [isLike, setIsLike] = useState(false);
     const [replyCount, setReplyCount] = useState(0);
-    const [commentBlogLike, setCommentBlogLike] = useState(0);
+    const [commentLike, setCommentLike] = useState(0);
+
 
     useEffect(() => {
         const data = getUserData(item.id_user, (userData) => {
@@ -58,38 +72,83 @@ const Card = ({ item, navigation }) => {
         return data;
     }, [item.id_user])
 
-    useEffect(() => {
-        const CheckIsLike = CheckUserLikeComment(uid, item.idcomment, (data) => {
-            setIsLike(data);
-        });
-        return CheckIsLike;
-    }, [uid, item.idcomment])
+    if (item.id_blog) {
+        useEffect(() => {
+            const CheckIsLike = CheckUserLikeComment(uid, item.idcomment, (data) => {
+                setIsLike(data);
+            });
+            return CheckIsLike;
+        }, [uid, item.idcomment])
 
-    useEffect(() => {
-        const getReplyCount = getReplyCommentCount(item.idcomment, (data) => {
-            setReplyCount(data);
-        })
-        return getReplyCount;
-    }, [item.idcomment])
+        useEffect(() => {
+            const getReplyCount = getReplyCommentCount(item.idcomment, (data) => {
+                setReplyCount(data);
+            })
+            return getReplyCount;
+        }, [item.idcomment])
 
-    useEffect(() => {
-        const commentBlogLikeCount = getCommentBlogLikeCount(item.idcomment, (data) => {
-            setCommentBlogLike(data);
-        })
-        return commentBlogLikeCount;
-    }, [item.idcomment])
+        useEffect(() => {
+            const commentBlogLikeCount = getCommentBlogLikeCount(item.idcomment, (data) => {
+                setCommentLike(data);
+            })
+            return commentBlogLikeCount;
+        }, [item.idcomment])
+    }
+    else {
+        useEffect(() => {
+            const CheckIsLike = CheckUserLikeCommentFood(uid, item.idcomment, (data) => {
+                setIsLike(data);
+            });
+            return CheckIsLike;
+        }, [uid, item.idcomment])
+
+        useEffect(() => {
+            const getReplyCount = getReplyFoodCommentCount(item.idcomment, (data) => {
+                setReplyCount(data);
+            })
+            return getReplyCount;
+        }, [item.idcomment])
+
+        useEffect(() => {
+            const commentBlogLikeCount = getCommentFoodLikeCount(item.idcomment, (data) => {
+                setCommentLike(data);
+            })
+            return commentBlogLikeCount;
+        }, [item.idcomment])
+    }
 
     const handleLikePress = async () => {
-        if (isLike) {
-            await DeleteFromCommentBlogLikes(item.idcomment, uid);
-        }
-        else {
-            const data = {
-                id_comment: item.idcomment,
-                id_user: uid,
-                date_like: firestore.Timestamp.now()
+        if (item.id_blog) 
+        {
+            if (isLike) 
+            {
+                await DeleteFromCommentBlogLikes(item.idcomment, uid);
             }
-            await AddToCommentBlogLikes(data);
+            else 
+            {
+                const data = {
+                    id_comment: item.idcomment,
+                    id_user: uid,
+                    date_like: firestore.Timestamp.now()
+                }
+                await AddToCommentBlogLikes(data);
+            }
+        }
+        else 
+        {
+            if (isLike) 
+            {
+                await DeleteFromCommentFoodLikes(item.idcomment, uid);
+            }
+            else 
+            {
+                const data = {
+                    id_comment: item.idcomment,
+                    id_user: uid,
+                    date_like: firestore.Timestamp.now()
+                }
+                await AddToCommentFoodLikes(data);
+            }
         }
         setIsLike(!isLike)
     }
@@ -125,12 +184,12 @@ const Card = ({ item, navigation }) => {
                 </View>
                 <View className="mt-5 flex-row items-center" style={{ marginLeft: wp(13) }}>
                     <MaterialCommunityIcons name={isLike ? 'thumb-up' : 'thumb-up-outline'} size={22} style={{ marginRight: wp(3) }} color={isLike ? 'blue' : 'gray'} onPress={() => handleLikePress()} />
-                    <Text className="mr-8">{commentBlogLike}</Text>
-                    <MaterialCommunityIcons name='comment-outline' size={22} onPress={() => navigation.navigate('ReplyBlog', { blogComment: item })} />
+                    <Text className="mr-8">{commentLike}</Text>
+                    <MaterialCommunityIcons name='comment-outline' size={22} onPress={() => navigation.navigate('ReplyComment', { Comment: item })} />
                 </View>
                 {
                     replyCount != 0 && (
-                        <TouchableOpacity className="mt-5 bg-white" style={{ marginLeft: wp(13) }} onPress={() => navigation.navigate('ReplyBlog', { blogComment: item })}>
+                        <TouchableOpacity className="mt-5 bg-white" style={{ marginLeft: wp(13) }} onPress={() => navigation.navigate('ReplyComment', { Comment: item })}>
                             <Text className="text-[#349eeb]">Xem thêm {replyCount} phản hồi</Text>
                         </TouchableOpacity>
                     )
@@ -140,4 +199,4 @@ const Card = ({ item, navigation }) => {
     )
 }
 
-export default BlogComment
+export default Comment

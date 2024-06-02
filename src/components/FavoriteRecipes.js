@@ -5,16 +5,14 @@ import MasonryList from '@react-native-seoul/masonry-list';
 import { useNavigation } from '@react-navigation/native';
 import { HeartIcon } from 'react-native-heroicons/solid';
 import { DeleteFromFavorite, getFoodDataFromFavorite, getUserData } from '../services/UserDataServices';
-import { useFocusEffect } from '@react-navigation/native';
-import { getSaveCount, updateSaveCount } from '../services/FoodDataServices';
 import { useSelector } from 'react-redux';
+import moment from 'moment';
 
 const FavoriteRecipes = () => {
 
     const uid = useSelector(state => state.userData.uid);
     const navigation = useNavigation();
     const [favoritedData, setFavoritedData] = useState([]);
-
 
     useEffect(() => {
         const unsubscribe = getFoodDataFromFavorite(uid, (data) => {
@@ -45,7 +43,7 @@ const Card = ({ item, navigation }) => {
 
     const uid = useSelector(state => state.userData.uid);
     const [userName, setUserName] = useState("");
-    const [total, setTotal] = useState(0);
+    const formattedDate = moment(item.date_posted.toDate()).format('DD/MM/YYYY');
 
     useEffect(() => {
         const data = getUserData(item.user_id, (userData) => {
@@ -56,17 +54,8 @@ const Card = ({ item, navigation }) => {
         return data;
       }, [item.user_id])
     
-    useEffect(() => {
-        const totalSave = getSaveCount(item.Id_food, (data) => {
-            setTotal(data);
-        })
-        return totalSave;
-    }, [item.Id_food])
-
     const handleFavoritePress = async () => {
         await DeleteFromFavorite(item.Id_food, uid);
-        const updateData = total - 1;
-        await updateSaveCount(item.Id_food, updateData);
     }
 
     return (
@@ -99,9 +88,8 @@ const Card = ({ item, navigation }) => {
                 {item.food_name.length > 20 ? item.food_name.slice(0, 20) + '...' : item.food_name}
             </Text>
             <Text style={{ fontSize: hp(1.9), color: '#666' }}>{userName}</Text>
-            <Text style={{ fontSize: hp(1.9), color: '#666' }}>{item.date_posted}</Text>
+            <Text style={{ fontSize: hp(1.9), color: '#666' }}>{formattedDate}</Text>
 
-            {/* Nút Trái tim */}
             <TouchableOpacity
                 onPress={handleFavoritePress}
                 style={{

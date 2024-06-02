@@ -3,8 +3,8 @@ import { View, Text, Pressable, Image } from 'react-native';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import MasonryList from '@react-native-seoul/masonry-list'
 import { useNavigation } from '@react-navigation/native';
-import tw from 'twrnc';
-import { getFoodDataApprove } from '../services/FoodDataServices';
+import { AddUserFoodHistory, CheckUserFoodHistory, getFoodDataApprove } from '../services/FoodDataServices';
+import { useSelector } from 'react-redux';
 
 const RecipesSearch = ({ SearchValue, pressSearch, resetPress }) => {
 
@@ -45,13 +45,14 @@ const RecipesSearch = ({ SearchValue, pressSearch, resetPress }) => {
       setFilterdData(newData);
     };
     filterData();
-  },[foodData])
+  }, [foodData])
 
   return (
-    <View style={tw`mx-4 mt-3`}>
-      <Text style={[tw`font-semibold text-neutral-600`, {
+    <View className="mx-4">
+      <Text style={{
         fontSize: hp(3),
-      }]}
+      }}
+        className="font-semibold text-neutral-600 mb-4"
       >
         RecipesSearch
       </Text>
@@ -63,10 +64,7 @@ const RecipesSearch = ({ SearchValue, pressSearch, resetPress }) => {
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, i }) => <RecipeCard item={item} index={i} navigation={navigation} />}
-          //refreshing={isLoadingNext}
-          //onRefresh={() => refetch({first: ITEM_CNT})}
           onEndReachedThreshold={0.1}
-        //onEndReached={() => loadNext(ITEM_CNT)}
         />
       </View>
     </View>
@@ -74,34 +72,69 @@ const RecipesSearch = ({ SearchValue, pressSearch, resetPress }) => {
 };
 
 const RecipeCard = ({ item, index, navigation }) => {
+
   let isEven = index % 2 == 0;
+
+  const [check, setCheck] = useState(false);
+  const uid = useSelector(state => state.userData.uid);
+
+  useEffect(() => {
+    const Check = CheckUserFoodHistory(uid, item.idmonan, (data) => {
+      setCheck(data);
+    });
+    return Check;
+  }, [uid, item.idmonan])
+
+  const AddFoodHistory = async () => {
+    if (check) {
+      navigation.navigate('RecipeDetail', { idmonan: item.idmonan, item })
+    }
+    else {
+      const data = {
+        id_user: uid,
+        id_food: item.idmonan,
+        date_seen: firestore.Timestamp.now()
+      }
+      await AddUserFoodHistory(data);
+      navigation.navigate('RecipeDetail', { idmonan: item.idmonan, item })
+    }
+  }
+
   return (
     <View>
       <Pressable
-        style={[tw`flex justify-center mb-4 mt-6`, {
+        style={{
           width: '100%',
           paddingLeft: isEven ? 0 : 8,
           paddingRight: isEven ? 8 : 0,
-        }]}
+        }}
 
-        onPress={() => navigation.navigate('RecipeDetail', { idmonan: item.idmonan, item })}>
-        <Image
-          source={{ uri: item.food_image }}
-          style={[tw`bg-black/5`, {
-            width: "100%",
-            height: index % 3 == 0 ? hp(25) : hp(35),
-            borderRadius: 35,
-          }]}
-        />
+        className="flex justify-center mb-4 space-y-1"
+
+        onPress={() => AddFoodHistory()}>
+
+        {
+          item.food_image && (
+            <Image
+              source={{ uri: item.food_image }}
+              style={{
+                width: "100%",
+                height: index % 3 == 0 ? hp(25) : hp(35),
+                borderRadius: 35,
+              }}
+              className="bg-black/5"
+            />
+          )
+        }
 
         <Text
-          style={[tw`font-semibold ml-2 text-neutral-600`, { fontSize: hp(1.9) }]}
+          style={{ fontSize: hp(1.9) }}
+          className="font-semibold ml-2 text-neutral-600"
         >
           {
             item.food_name.length > 20 ? item.food_name.slice(0, 20) + "..." : item.food_name
           }
         </Text>
-
       </Pressable>
     </View>
   )

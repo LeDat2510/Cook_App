@@ -65,7 +65,6 @@ export const getFoodDataFromFavorite = (userId, callback) => {
         .where('id_user', '==', userId)
         .onSnapshot((querySnapshot) => {
             if (querySnapshot.empty) {
-                // Không có tài liệu phù hợp, trả về một mảng rỗng ngay lập tức
                 callback([]);
                 return;
             }
@@ -73,7 +72,6 @@ export const getFoodDataFromFavorite = (userId, callback) => {
             const favoriteFoodIds = querySnapshot.docs.map((doc) => doc.data().id_food);
 
             if (favoriteFoodIds.length === 0) {
-                // Không có favoriteFoodIds, trả về một mảng rỗng ngay lập tức
                 callback([]);
                 return;
             }
@@ -114,9 +112,6 @@ export const CheckUserFavorite = (userId, foodId, callback) => {
             else {
                 callback(false);
             }
-        }, (error) => {
-            console.log('Error checking favorite existence:', error);
-            callback(false);
         });
     return unsubscribe;
 }
@@ -148,9 +143,6 @@ export const searchFoodByName = (keyword, callback) => {
                     monan.push({ idmonan, ...data });
                 });
                 callback(monan);
-            }, (error) => {
-                console.error('Error searching foods:', error);
-                callback([]);
             });
     } catch (error) {
         console.error('Error searching foods:', error);
@@ -168,9 +160,49 @@ export const AddSearchHistory = async (historyData) => {
     }
 }
 
+export const CheckSearchContent = (uid, searchcontent, callback) => {
+    try {
+        const collectionRef = firestore().collection('SearchHistory');
+        return collectionRef.where("search_content", '==', searchcontent).where("id_user", '==', uid)
+            .onSnapshot((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    callback(true);
+                }
+                else {
+                    callback(false);
+                }
+            })
+    } catch (error) {
+        console.log(error)
+        callback(false);
+    }
+}
+
+export const updateSearchContent = (searchcontent, uid) => {
+
+    const collectionRef = firestore().collection('SearchHistory');
+    return collectionRef
+        .where('id_user', '==', uid)
+        .where('search_content', '==', searchcontent)
+        .get()
+        .then((querySnapshot) => {
+            if (!querySnapshot.empty) 
+            {
+                const docRef = querySnapshot.docs[0].ref;
+                docRef.update({ date_search: firestore.Timestamp.now() });
+            } 
+            else 
+            {
+                callback(false);
+            }
+        })
+        .catch((error) => {
+            console.error('Error updating search content:', error);
+        });
+}
+
 export const getAllSearchHistoryData = (uid, callback) => {
-    try 
-    {
+    try {
         const collectionRef = firestore().collection('SearchHistory');
         return collectionRef
             .where('id_user', '==', uid)
@@ -181,13 +213,14 @@ export const getAllSearchHistoryData = (uid, callback) => {
                     const idsearch = doc.id;
                     historyData.push({ idsearch, ...data });
                 });
+                historyData.sort((a, b) => b.date_search - a.date_search);
                 callback(historyData)
-            })   
+            })
     } catch (error) {
         console.error('Error retrieving search history:', error);
         return [];
     }
-} 
+}
 
 export const getSearchHistoryData = (uid, callback) => {
     try {
@@ -213,8 +246,7 @@ export const getSearchHistoryData = (uid, callback) => {
 };
 
 export const deleteAllSearchHistoryData = async () => {
-    try 
-    {
+    try {
         const collectionRef = firestore().collection('SearchHistory');
         const batch = firestore().batch();
 
@@ -232,8 +264,7 @@ export const deleteAllSearchHistoryData = async () => {
 }
 
 export const deleteAllUserFoodHistoryData = async () => {
-    try 
-    {
+    try {
         const collectionRef = firestore().collection('UserFoodHistory');
         const batch = firestore().batch();
 
@@ -251,8 +282,7 @@ export const deleteAllUserFoodHistoryData = async () => {
 }
 
 export const deleteSearchHistoryData = async (idsearch) => {
-    try 
-    {
+    try {
         const collectionRef = firestore().collection('SearchHistory').doc(idsearch);
         collectionRef.delete();
         console.log('All documents deleted successfully.');
@@ -283,5 +313,8 @@ export const deleteUserFoodHistoryData = async (idFood, uid) => {
         console.error('Error deleting documents:', error);
     }
 }
+
+
+
 
 

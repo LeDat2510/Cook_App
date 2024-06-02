@@ -46,7 +46,6 @@ const MyPostedScreen = () => {
           }} className="space-y-6 pt-5"
         >
 
-          {/* Avatar */}
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <View className="mx-4 flex-row justify-between items-center">
               <AdjustmentsHorizontalIcon size={hp(4)} color={"gray"} />
@@ -68,7 +67,6 @@ const MyPostedScreen = () => {
             </View>
           </TouchableOpacity>
 
-          {/*Headlines */}
           <View className="mx-4 space-y-1 mb-2">
 
             <Text

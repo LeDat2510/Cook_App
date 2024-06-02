@@ -27,7 +27,7 @@ const MoreSearchHistoryScreen = ({ navigation }) => {
                         onPress={() => {
                             navigation.goBack();
                         }}
-                        className="p-2 rounded-full ml-2 bg-white"
+                        className="p-2 rounded-full ml-2"
                     >
                         <MaterialCommunityIcons name="arrow-left" size={hp(3.5)} strokeWidth={4.5} color={'#4A4A4A'} />
                     </TouchableOpacity>

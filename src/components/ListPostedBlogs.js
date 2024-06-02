@@ -235,10 +235,7 @@ const ListPostedBlogs = () => {
           numColumns={1}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, i }) => <RecipeCard item={item} index={i} navigation={navigation} />}
-          //refreshing={isLoadingNext}
-          //onRefresh={() => refetch({first: ITEM_CNT})}
           onEndReachedThreshold={0.1}
-        //onEndReached={() => loadNext(ITEM_CNT)}
         />
       </View>
     </View>

@@ -4,7 +4,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import MasonryList from '@react-native-seoul/masonry-list'
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import { AddToBlogLikes, CheckUserLike, DeleteFromBlogLikes, getAllBlogData, getBlogCommentCount, getReplyBlogCommentCount, updateNumLike } from '../services/BlogDataServices';
+import { AddToBlogLikes, CheckUserLike, DeleteFromBlogLikes, getAllBlogData, getBlogCommentCount, getBlogLikeCount, getReplyBlogCommentCount, updateNumLike } from '../services/BlogDataServices';
 import { getUserData } from '../services/UserDataServices';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
@@ -31,10 +31,7 @@ const Blogs = () => {
                     numColumns={1}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item, i }) => <Card item={item} index={i} navigation={navigation} />}
-                    //refreshing={isLoadingNext}
-                    //onRefresh={() => refetch({first: ITEM_CNT})}
                     onEndReachedThreshold={0.1}
-                //onEndReached={() => loadNext(ITEM_CNT)}
                 />
             </View>
         </View>
@@ -51,7 +48,7 @@ const Card = ({ item, navigation }) => {
     const [blogCommentCount, setBlogCommentCount] = useState(0);
     const [replyBlogCommentCount, setReplyBlogCommentCount] = useState(0);
     const formattedDate = moment(item.date_posted.toDate()).format('DD/MM/YYYY');
-
+    const [blogLikeCount, setBlogLikeCount] = useState(0);
     const totalCount = blogCommentCount + replyBlogCommentCount;
 
     useEffect(() => {
@@ -70,9 +67,14 @@ const Card = ({ item, navigation }) => {
             setReplyBlogCommentCount(data)
         });
 
+        const blogLikeCount = getBlogLikeCount(item.idblog, (data) => {
+            setBlogLikeCount(data)
+        })
+
         return () => {
             unsubscribe1();
             unsubscribe2();
+            blogLikeCount();
         };
     }, [item.idblog]);
 
@@ -89,8 +91,6 @@ const Card = ({ item, navigation }) => {
     const handleLikePress = async () => {
         if (isLike) {
             await DeleteFromBlogLikes(item.idblog, uid);
-            const updateData = item.num_like - 1;
-            await updateNumLike(item.idblog, updateData);
         }
         else {
             const data = {
@@ -99,138 +99,138 @@ const Card = ({ item, navigation }) => {
                 date_like: firestore.Timestamp.now()
             }
             await AddToBlogLikes(data);
-            const updateData = item.num_like + 1;
-            await updateNumLike(item.idblog, updateData)
         }
         setIsLike(!isLike)
     }
 
     return (
-        <View
-            style={{
-                backgroundColor: '#fff',
-                width: '100%',
-                borderColor: '#f64e32',
-                borderWidth: 2,
-                borderRadius: 20,
-                overflow: 'hidden',
-            }}
-            className="flex justify-center mb-4 space-y-1">
-
+        <Pressable onPress={() => navigation.navigate('BlogDetail', { item })}>
             <View
                 style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    backgroundColor: '#fff',
+                    width: '100%',
+                    borderColor: '#f64e32',
+                    borderWidth: 2,
+                    borderRadius: 20,
+                    overflow: 'hidden',
                 }}
-                className="mt-4 ml-4"
-            >
-                {
-                    userImage != "" && (
-                        <Image
-                            source={{ uri: userImage }}
-                            style={{
-                                width: hp(6),
-                                height: hp(6),
-                                resizeMode: "cover",
-                            }}
-                            className="rounded-full"
-                        />
-                    )
-                }
+                className="flex justify-center mb-4 space-y-1">
+
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}
+                    className="mt-4 ml-4"
+                >
+                    {
+                        userImage != "" && (
+                            <Image
+                                source={{ uri: userImage }}
+                                style={{
+                                    width: hp(6),
+                                    height: hp(6),
+                                    resizeMode: "cover",
+                                }}
+                                className="rounded-full"
+                            />
+                        )
+                    }
+
+                    <Text
+                        className="font-semibold ml-2 text-neutral-600"
+                        style={{ fontSize: hp(1.9) }}
+                    >
+                        {userName}
+                    </Text>
+
+                    <Text
+                        className="ml-4 text-neutral-600 mt-1"
+                        style={{ fontSize: hp(1.5) }}
+                    >
+                        {formattedDate}
+                    </Text>
+                </View>
 
                 <Text
-                    className="font-semibold ml-2 text-neutral-600"
-                    style={{ fontSize: hp(1.9) }}
+                    className="font-semibold text-neutral-900 pt-2 mx-4"
+                    style={{ fontSize: hp(2.5) }}
                 >
-                    {userName}
+                    {item.title_blog}
                 </Text>
 
                 <Text
-                    className="ml-4 text-neutral-600 mt-1"
-                    style={{ fontSize: hp(1.5) }}
+                    className="text-neutral-600 mt-4 mx-4 mb-3"
+                    style={{ fontSize: hp(1.8) }}
+                    numberOfLines={4}
                 >
-                    {formattedDate}
+                    {item.blog_content}
                 </Text>
-            </View>
 
-            <Text
-                className="font-semibold text-neutral-900 pt-2 mx-4"
-                style={{ fontSize: hp(2.5) }}
-            >
-                {item.title_blog}
-            </Text>
+                <Image
+                    source={{ uri: item.blog_image }}
+                    style={{
+                        width: '92%',
+                        height: hp(35),
+                        borderRadius: 15,
+                        resizeMode: 'cover'
+                    }}
+                    className="bg-black/5 mx-3.5"
+                />
 
-            <Text
-                className="text-neutral-600 mt-4 mx-4"
-                style={{ fontSize: hp(1.8) }}
-            >
-                {item.blog_content}
-            </Text>
-
-            <Image
-                source={{ uri: item.blog_image }}
-                style={{
-                    width: '92%',
-                    height: hp(35),
-                    borderRadius: 15,
-                    resizeMode: 'cover'
-                }}
-                className="bg-black/5 mx-3.5"
-            />
-
-            <View
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                }} className='mb-2'
-            >
-                <TouchableOpacity
+                <View
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        paddingLeft: 40,
-                        paddingTop: 20
-                    }} className='mb-2 pl-2'
-                    onPress={() => {
-                        handleLikePress()
-                    }}
-
+                    }} className='mb-2'
                 >
-                    <MaterialCommunityIcons name={isLike ? 'thumb-up' : 'thumb-up-outline'} size={hp(3.5)} strokeWidth={4.5} color={isLike ? 'blue' : 'gray'} />
-                    <Text
-                        className="font-semibold text-neutral-900 ml-2"
-                        style={{ fontSize: hp(2) }}
-                    >
-                        {item.num_like}
-                    </Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            paddingLeft: 40,
+                            paddingTop: 20
+                        }} className='mb-2 pl-2'
+                        onPress={() => {
+                            handleLikePress()
+                        }}
 
-                <TouchableOpacity
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingRight: 40,
-                        paddingTop: 20
-                    }} className='mb-2 pr-2'
-                    onPress={() => {
-                        /* handle comment button */
-                        navigation.navigate('BlogComment', { item })
-                    }}
-                >
-                    <MaterialCommunityIcons name='comment-processing-outline' size={hp(3.5)} strokeWidth={4.5} color={'gray'} />
-                    <Text
-                        className="font-semibold text-neutral-900 ml-2"
-                        style={{ fontSize: hp(2) }}
                     >
-                        {totalCount}
-                    </Text>
-                </TouchableOpacity>
+                        <MaterialCommunityIcons name={isLike ? 'thumb-up' : 'thumb-up-outline'} size={hp(3.5)} strokeWidth={4.5} color={isLike ? 'blue' : 'gray'} />
+                        <Text
+                            className="font-semibold text-neutral-900 ml-2"
+                            style={{ fontSize: hp(2) }}
+                        >
+                            {blogLikeCount}
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            paddingRight: 40,
+                            paddingTop: 20
+                        }} className='mb-2 pr-2'
+                        onPress={() => {
+                            navigation.navigate('Comment', { item })
+                        }}
+                    >
+                        <MaterialCommunityIcons name='comment-processing-outline' size={hp(3.5)} strokeWidth={4.5} color={'gray'} />
+                        <Text
+                            className="font-semibold text-neutral-900 ml-2"
+                            style={{ fontSize: hp(2) }}
+                        >
+                            {totalCount}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
             </View>
-
-        </View>
+        </Pressable>
     );
 };
 

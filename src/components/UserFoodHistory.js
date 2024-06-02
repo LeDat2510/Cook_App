@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Image, TouchableOpacity } from 'react-native';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import MasonryList from '@react-native-seoul/masonry-list';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
 import { getFoodDataApprove, getFoodDataInUserFoodHistory } from '../services/FoodDataServices';
 import { FlatList } from 'react-native-gesture-handler';
@@ -49,7 +48,7 @@ const UserFoodHistory = () => {
     );
 };
 
-const RecipeCard = ({ item, index, navigation }) => {
+const RecipeCard = ({ item, navigation }) => {
     const [userName, setUserName] = useState("");
     const [userImage, setUserImage] = useState("");
 
@@ -63,7 +62,6 @@ const RecipeCard = ({ item, index, navigation }) => {
         return data;
     }, [item.user_id]);
 
-    let isEven = index % 2 == 0;
     return (
         <Pressable onPress={() => navigation.navigate('RecipeDetail', { idmonan: item.idmonan, item })}>
             <View
@@ -82,18 +80,23 @@ const RecipeCard = ({ item, index, navigation }) => {
             >
                 <Image
                     source={{ uri: item.food_image }}
-                    className="rounded-lg w-40 h-36"
+                    className="rounded-lg h-36"
+                    style={{ width: wp(40)}}
                     resizeMode="cover"
                 />
                 <View className="max-w-36">
                     <Text className="text-black mt-1 pl-2" numberOfLines={2}>{item.food_name}</Text>
                 </View>
                 <View className="flex-row pb-2">
-                    <Image
-                        source={{ uri: userImage }}
-                        className="w-6 h-6 rounded-full mt-1 ml-2"
-                        resizeMode="cover"
-                    />
+                    {
+                        userImage && (
+                            <Image
+                                source={{ uri: userImage }}
+                                className="w-6 h-6 rounded-full mt-1 ml-2"
+                                resizeMode="cover"
+                            />
+                        )
+                    }
                     <Text className="text-black mt-1 pl-2 self-center flex-1" numberOfLines={1}>{userName}</Text>
                 </View>
             </View>

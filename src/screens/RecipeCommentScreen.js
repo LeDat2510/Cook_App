@@ -3,10 +3,10 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Button } from 'react-native';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import BlogComment from '../components/BlogComment';
-import AddCommentBlog from '../components/AddCommentBlog';
+import BlogComment from '../components/Comment';
+import AddCommentBlog from '../components/AddComment';
 
-const BlogCommentScreen = ({ route }) => {
+const RecipeCommentScreen = ({ route }) => {
 
     const { item } = route.params;
     const navigation = useNavigation();
@@ -35,4 +35,4 @@ const BlogCommentScreen = ({ route }) => {
     );
 };
 
-export default BlogCommentScreen;
+export default RecipeCommentScreen;

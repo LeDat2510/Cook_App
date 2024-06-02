@@ -22,8 +22,6 @@ const Welcome = () => {
         resizeMode: "cover",
        }}
         />
-
-    {/* Lottie Logo */}
         <LottieView autoPlay ref={animation}
             style={{
                 width: wp(70),
@@ -32,7 +30,6 @@ const Welcome = () => {
             source={require("../assets/lottie/food-logo.json")}
         />
 
-    {/* Title & Subtitle */}
         <View className="flex items-center space-y-2">
             <Text 
             className="text-white font-extrabold tracking-widest"

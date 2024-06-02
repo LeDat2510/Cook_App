@@ -24,26 +24,30 @@ const SearchHistory = () => {
             <Text className="text-xl text-neutral-800 font-bold mb-4">
                 Lịch sử tìm kiếm
             </Text>
-            <View>
-                <MasonryList
-                    data={searchHistoryData}
-                    keyExtractor={(item) => item.idsearch}
-                    numColumns={1}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <Card item={item} navigation={navigation} />
-                    )}
-                    onEndReachedThreshold={0.1}
-                />
-                <View className="mt-5 items-center flex-1">
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('MoreSearchHistory')}
-                        className="px-2 py-1"
-                    >
-                        <Text className="text-gray-500">Xem thêm<MaterialCommunityIcons name='chevron-down' size={14} /></Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            {
+                searchHistoryData && (
+                    <View>
+                        <MasonryList
+                            data={searchHistoryData}
+                            keyExtractor={(item) => item.idsearch}
+                            numColumns={1}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <Card item={item} navigation={navigation} />
+                            )}
+                            onEndReachedThreshold={0.1}
+                        />
+                        <View className="mt-5 items-center flex-1">
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('MoreSearchHistory')}
+                                className="px-2 py-1"
+                            >
+                                <Text className="text-gray-500">Xem thêm<MaterialCommunityIcons name='chevron-down' size={14} /></Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )
+            }
         </View>
     );
 };

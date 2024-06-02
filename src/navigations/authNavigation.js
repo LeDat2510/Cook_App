@@ -4,13 +4,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import CustomDrawer from '../components/CustomDrawer';
-import Home from '../screens/HomeScreen';
+import HomeScreen from '../screens/HomeScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
-import UserDetail from '../screens/UserDetail';
+import UserDetailScreen from '../screens/UserDetailScreen';
 import CreateUpdateRecipe from '../screens/CreateUpdateRecipe';
-import Login from '../screens/Login';
+import LoginScreen from '../screens/LoginScreen';
 import Welcome from '../screens/WelcomeScreen';
-import Signup from '../screens/Signup';
+import SignupScreen from '../screens/SignupScreen';
 import MyPostedScreen from '../screens/MyPostedScreen';
 import RecipeDetailScreen from '../screens/RecipeDetailScreen';
 import SearchScreen from '../screens/SearchScreen';
@@ -18,30 +18,29 @@ import LatestRecipesScreen from '../screens/LatestRecipesScreen';
 import BlogDetailScreen from '../screens/BlogDetailScreen';
 import CreateUpdateBlog from '../screens/CreateUpdateBlog';
 import BlogScreen from '../screens/BlogScreen';
-import BlogCommentScreen from '../screens/BlogCommentScreen';
-import ReplyBlogCommentScreen from '../screens/ReplyBlogCommentScreen';
+import CommentScreen from '../screens/CommentScreen';
 import SearchResultScreen from '../screens/SearchResultScreen';
 import MoreSearchHistoryScreen from '../screens/MoreSearchHistoryScreen';
 import MoreUserFoodHistoryScreen from '../screens/MoreUserFoodHistoryScreen';
 import PosterDetailScreen from '../screens/PosterDetailScreen';
 import AllPosterFoodScreen from '../screens/AllPosterFoodScreen';
 import AllPosterBlogScreen from '../screens/AllPosterBlogScreen';
+import ReplyCommentScreen from '../screens/ReplyCommentScreen';
 
 const StackNav = () => {
   const Stack = createNativeStackNavigator();
   return (
     <Stack.Navigator initialRouteName='Home' screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
       <Stack.Screen name="BlogDetail" component={BlogDetailScreen} />
       <Stack.Screen name="Search" component={SearchScreen} />
       <Stack.Screen name="SearchResult" component={SearchResultScreen} />
       <Stack.Screen name="Favorite" component={FavoriteScreen} />
-      <Stack.Screen name="UserDetail" component={UserDetail} />
       <Stack.Screen name="CreateUpdateRecipe" component={CreateUpdateRecipe} />
       <Stack.Screen name="CreateUpdateBlog" component={CreateUpdateBlog} />
-      <Stack.Screen name="BlogComment" component={BlogCommentScreen} />
-      <Stack.Screen name="ReplyBlog" component={ReplyBlogCommentScreen} />
+      <Stack.Screen name="Comment" component={CommentScreen} />
+      <Stack.Screen name="ReplyComment" component={ReplyCommentScreen} />
       <Stack.Screen name="MoreSearchHistory" component={MoreSearchHistoryScreen} />
       <Stack.Screen name="MoreUserFoodHistory" component={MoreUserFoodHistoryScreen} />
       <Stack.Screen name="PosterDetail" component={PosterDetailScreen} />
@@ -60,8 +59,8 @@ const LoginNav = () => {
         headerShown: false,
       }}>
       <Stack.Screen name="Welcome" component={Welcome} />
-      <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="SignUp" component={Signup} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SignUp" component={SignupScreen} />
       <Stack.Screen name="HomeLogin" component={DrawerStack} />
     </Stack.Navigator>
   );
@@ -105,6 +104,12 @@ const DrawerStack = () => (
     <Drawer.Screen name="Posted" component={MyPostedScreen} options={{
       drawerIcon: ({ color }) => (
         <Ionicons name='timer-outline' size={22} color={color} />
+      )
+    }} />
+    <Drawer.Screen name="Profile" component={UserDetailScreen} options={{
+      drawerLabel: "Profile",
+      drawerIcon: ({ color }) => (
+        <Ionicons name='person-outline' size={22} color={color} />
       )
     }} />
   </Drawer.Navigator>

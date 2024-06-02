@@ -4,10 +4,8 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import MasonryList from '@react-native-seoul/masonry-list'
 import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore'
-import { AddUserFoodHistory, CheckUserFoodHistory, getFoodByCategories, getFoodDataApprove, getFoodDataById } from '../services/FoodDataServices';
-import LatestRecipes from '../components/LatestRecipes';
+import { AddUserFoodHistory, CheckUserFoodHistory, getFoodByCategories } from '../services/FoodDataServices';
 import { useSelector } from 'react-redux';
-import moment from 'moment';
 
 const Recipes = ({ categoryId }) => {
 
@@ -42,10 +40,7 @@ const Recipes = ({ categoryId }) => {
         numColumns={2}
         showsVerticalScrollIndicator={false}
         renderItem={({item, i}) => <RecipeCard item ={item} index={i} navigation={navigation}/>}
-        //refreshing={isLoadingNext}
-        //onRefresh={() => refetch({first: ITEM_CNT})}
         onEndReachedThreshold={0.1}
-        //onEndReached={() => loadNext(ITEM_CNT)}
 />
       </View>
     </View>
@@ -56,7 +51,6 @@ const RecipeCard = ({item, index, navigation}) =>{
     let isEven = index%2 == 0;
 
     const uid = useSelector(state => state.userData.uid);
-    const currentDate = moment().format('DD-MM-YYYY');
     const [check, setCheck] = useState(false);
   
     useEffect(() => {

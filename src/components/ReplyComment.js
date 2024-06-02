@@ -8,17 +8,29 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { AddToReplyBlogCommentLikes, CheckUserLikeReplyComment, DeleteFromReplyBlogCommentLikes, getAllReplyBlogComment, getReplyBlogCommentLikeCount } from '../services/BlogDataServices';
 import { useSelector } from 'react-redux';
+import { AddToReplyFoodCommentLikes, CheckUserLikeReplyCommentFood, DeleteFromReplyFoodCommentLikes, getAllReplyBlogCommentFood, getReplyFoodCommentLikeCount } from '../services/FoodDataServices';
+import { elementAt } from 'rxjs';
 
-const ReplyComment = ({ idcomment }) => {
+const ReplyComment = ({ idcomment, idblog, idfood }) => {
 
     const [replyCommentData, setReplyCommentData] = useState([]);
 
-    useEffect(() => {
-        const fetchReplyCommentData = getAllReplyBlogComment(idcomment, (data) => {
-            setReplyCommentData(data);
-        })
-        return fetchReplyCommentData;
-    }, [idcomment])
+    if (idblog) {
+        useEffect(() => {
+            const fetchReplyCommentData = getAllReplyBlogComment(idcomment, (data) => {
+                setReplyCommentData(data);
+            })
+            return fetchReplyCommentData;
+        }, [idcomment])
+    }
+    else {
+        useEffect(() => {
+            const fetchReplyCommentData = getAllReplyBlogCommentFood(idcomment, (data) => {
+                setReplyCommentData(data);
+            })
+            return fetchReplyCommentData;
+        }, [idcomment])
+    }
 
     return (
         <View style={{ marginBottom: 10 }}>
@@ -45,8 +57,7 @@ const Card = ({ item }) => {
     const [userImage, setUserImage] = useState('');
 
     const [isLike, setIsLike] = useState(false);
-    const [replyBlogCommentLike, setreplyBlogCommentLike] = useState(0);
-    const currentDate = moment().format('DD-MM-YYYY');
+    const [replyCommentLike, setreplyCommentLike] = useState(0);
 
     useEffect(() => {
         const data = getUserData(item.id_user, (userData) => {
@@ -58,31 +69,69 @@ const Card = ({ item }) => {
         return data;
     }, [item.id_user])
 
-    useEffect(() => {
-        const CheckIsLike = CheckUserLikeReplyComment(uid, item.idreply, (data) => {
-            setIsLike(data);
-        });
-        return CheckIsLike;
-    }, [uid, item.idreply])
+    if (item.id_blog) {
+        useEffect(() => {
+            const CheckIsLike = CheckUserLikeReplyComment(uid, item.idreply, (data) => {
+                setIsLike(data);
+            });
+            return CheckIsLike;
+        }, [uid, item.idreply])
 
-    useEffect(() => {
-        const commentBlogLikeCount = getReplyBlogCommentLikeCount(item.idreply, (data) => {
-            setreplyBlogCommentLike(data);
-        })
-        return commentBlogLikeCount;
-    }, [item.idreply])
+        useEffect(() => {
+            const commentBlogLikeCount = getReplyBlogCommentLikeCount(item.idreply, (data) => {
+                setreplyCommentLike(data);
+            })
+            return commentBlogLikeCount;
+        }, [item.idreply])
+    }
+    else {
+        useEffect(() => {
+            const CheckIsLike = CheckUserLikeReplyCommentFood(uid, item.idreply, (data) => {
+                setIsLike(data);
+            });
+            return CheckIsLike;
+        }, [uid, item.idreply])
+
+        useEffect(() => {
+            const commentLikeCount = getReplyFoodCommentLikeCount(item.idreply, (data) => {
+                setreplyCommentLike(data);
+            })
+            return commentLikeCount;
+        }, [item.idreply])
+    }
 
     const handleLikePress = async () => {
-        if (isLike) {
-            await DeleteFromReplyBlogCommentLikes(item.idreply, uid);
-        }
-        else {
-            const data = {
-                id_reply: item.idreply,
-                id_user: uid,
-                date_like: firestore.Timestamp.now()
+        if (item.id_blog) 
+        {
+            if (isLike) 
+            {
+                await DeleteFromReplyBlogCommentLikes(item.idreply, uid);
             }
-            await AddToReplyBlogCommentLikes(data);
+            else 
+            {
+                const data = {
+                    id_reply: item.idreply,
+                    id_user: uid,
+                    date_like: firestore.Timestamp.now()
+                }
+                await AddToReplyBlogCommentLikes(data);
+            }
+        }
+        else
+        {
+            if (isLike) 
+            {
+                await DeleteFromReplyFoodCommentLikes(item.idreply, uid);
+            }
+            else 
+            {
+                const data = {
+                    id_reply: item.idreply,
+                    id_user: uid,
+                    date_like: firestore.Timestamp.now()
+                }
+                await AddToReplyFoodCommentLikes(data);
+            }       
         }
         setIsLike(!isLike)
     }
@@ -119,7 +168,7 @@ const Card = ({ item }) => {
                     <MaterialCommunityIcons
                         name={isLike ? 'thumb-up' : 'thumb-up-outline'} color={isLike ? 'blue' : 'gray'} size={22} style={{ marginRight: wp(3) }} onPress={() => handleLikePress()}
                     />
-                    <Text>{replyBlogCommentLike}</Text>
+                    <Text>{replyCommentLike}</Text>
                 </View>
             </View>
         </View>

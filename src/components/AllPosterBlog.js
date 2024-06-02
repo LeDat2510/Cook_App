@@ -1,28 +1,46 @@
-import { View, Text, Pressable, TouchableOpacity, FlatList, Image, TextInput, SafeAreaView } from 'react-native'
+import { View, Text, Pressable, TouchableOpacity, Image, TextInput, SafeAreaView } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { getPosterFoodData } from '../services/FoodDataServices';
-import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { Button, Icon, IconButton } from 'react-native-paper';
-import { getUserData } from '../services/UserDataServices';
+import { Icon } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import MansonryList from '@react-native-seoul/masonry-list'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import { getAllPosterBlogData, getPosterBlogCount} from '../services/BlogDataServices';
 
 const AllPosterBlog = ({ iduser }) => {
 
     const navigation = useNavigation();
 
-    const [PosterFoodData, setPosterFoodData] = useState([]);
-
+    const [PosterBlogData, setPosterBlogData] = useState([]);
+    const [filterdData, setFilterdData] = useState([]);
     const [onPressSearch, setOnPressSearch] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const [posterBlogCount, setPosterBlogCount] = useState(0);
 
     useEffect(() => {
-        const getFoodData = getPosterFoodData(iduser, (data) => {
-            setPosterFoodData(data);
+        const getBlogData = getAllPosterBlogData(iduser, (data) => {
+            setPosterBlogData(data);
+            setFilterdData(data)
         });
-        return getFoodData;
+        const getBlogCount = getPosterBlogCount(iduser, (data) => {
+            setPosterBlogCount(data);
+        })
+        return () => {
+            getBlogData();
+            getBlogCount();
+        };
     }, [iduser]);
+
+    useEffect(() => {
+        const filterData = () => {
+            const newData = PosterBlogData.filter((item) => {
+                const itemData = item.title_blog ? item.title_blog.toUpperCase() : ''.toUpperCase();
+                const inputTextData = searchValue.toUpperCase();
+                return itemData.includes(inputTextData);
+            });
+            setFilterdData(newData);
+        };
+        filterData();
+    }, [PosterBlogData, searchValue])
 
     return (
         <View className="bg-[#F8F6F2] py-5 mb-8">
@@ -36,12 +54,14 @@ const AllPosterBlog = ({ iduser }) => {
                             style={{
                                 flex: 6,
                             }}
-                            onChangeText={() => { }}
+                            onChangeText={(text) => setSearchValue(text)}
+                            value={searchValue}
                         />
                         <TouchableOpacity
                             className="flex-1 items-center justify-center ml-1 h-12"
                             onPress={() => {
                                 setOnPressSearch(!onPressSearch);
+                                setSearchValue('');
                             }}>
                             <View>
                                 <Text>
@@ -53,7 +73,7 @@ const AllPosterBlog = ({ iduser }) => {
                 ) : (
                     <View className="flex-row items-center justify-between px-5 py-2">
                         <Text className="text-lg font-semibold text-[#4A4A4A]">
-                            <Icon source={"card-text"} size={24} color='#4A4A4A' /> 420 blog
+                            <Icon source={"card-text"} size={24} color='#4A4A4A' /> {posterBlogCount} blog
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
@@ -77,15 +97,12 @@ const AllPosterBlog = ({ iduser }) => {
                             }} className="space-y-6"
                         >
                             <MansonryList
-                                data={PosterFoodData}
+                                data={filterdData}
                                 keyExtractor={(item) => item.idmonan}
                                 numColumns={2}
                                 showsVerticalScrollIndicator={false}
                                 renderItem={({ item, i }) => <BlogCard item={item} index={i} navigation={navigation} />}
-                                //refreshing={isLoadingNext}
-                                //onRefresh={() => refetch({first: ITEM_CNT})}
                                 onEndReachedThreshold={0.1}
-                            //onEndReached={() => loadNext(ITEM_CNT)}
                             />
                         </ScrollView>
                     </SafeAreaView>
@@ -95,20 +112,7 @@ const AllPosterBlog = ({ iduser }) => {
     );
 }
 
-const BlogCard = ({ item, index, navigation }) => {
-
-    const [userName, setUserName] = useState("");
-    const [userImage, setUserImage] = useState("");
-
-    useEffect(() => {
-        const data = getUserData(item.user_id, (userData) => {
-            if (userData) {
-                setUserName(userData.user_name)
-                setUserImage(userData.user_image);
-            }
-        });
-        return data;
-    }, [item.user_id])
+const BlogCard = ({ item, navigation }) => {
 
     return (
         <Pressable onPress={() => navigation.navigate('RecipeDetail', { idmonan: item.idmonan, item })}>
@@ -116,13 +120,13 @@ const BlogCard = ({ item, index, navigation }) => {
                 <View className="flex-row">
                     <Image
                         source={{
-                            uri: item.food_image
+                            uri: item.blog_image
                         }}
                         className="rounded-lg w-full h-40 flex-1">
                     </Image>
                 </View>
                 <View className="max-w-xs">
-                    <Text className="text-black mt-1 pl-2" numberOfLines={1}>{item.food_name}</Text>
+                    <Text className="text-black mt-1 pl-2" numberOfLines={1}>{item.title_blog}</Text>
                 </View>
             </View>
         </Pressable>

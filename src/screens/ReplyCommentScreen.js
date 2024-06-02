@@ -1,7 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Button } from 'react-native';
-import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import firestore from '@react-native-firebase/firestore'
 import { getUserData } from '../services/UserDataServices';
@@ -11,73 +10,120 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import ReplyComment from '../components/ReplyComment';
 import AddReplyComment from '../components/AddReplyComment';
 import { useSelector } from 'react-redux';
+import { CheckUserLikeCommentFood, getCommentFoodLikeCount } from '../services/FoodDataServices';
 
-const ReplyBlogCommentScreen = ({ route }) => {
+const ReplyCommentScreen = ({ route }) => {
 
     const uid = useSelector(state => state.userData.uid);
-    const { blogComment } = route.params;
+    const { Comment } = route.params;
     const [userName, setUserName] = useState('');
     const [userImage, setUserImage] = useState('');
     const [isLike, setIsLike] = useState(false);
-    const [commentBlogLike, setCommentBlogLike] = useState(0);
+    const [commentLike, setCommentLike] = useState(0);
     const [shouldFocusTextInput, setShouldFocusTextInput] = useState(false);
     const navigation = useNavigation();
 
     useEffect(() => {
-        const data = getUserData(blogComment.id_user, (userData) => {
+        const data = getUserData(Comment.id_user, (userData) => {
             if (userData) {
                 setUserName(userData.user_name)
                 setUserImage(userData.user_image);
             }
         });
         return data;
-    }, [blogComment.id_user])
+    }, [Comment.id_user])
 
-    useEffect(() => {
-        const CheckIsLike = CheckUserLikeComment(uid, blogComment.idcomment, (data) => {
-            setIsLike(data);
-        });
-        return CheckIsLike;
-    }, [uid, blogComment.idcomment])
+    if (Comment.id_blog) 
+    {
+        useEffect(() => {
+            const CheckIsLike = CheckUserLikeComment(uid, Comment.idcomment, (data) => {
+                setIsLike(data);
+            });
+            return CheckIsLike;
+        }, [uid, Comment.idcomment])
 
-    useEffect(() => {
-        const commentBlogLikeCount = getCommentBlogLikeCount(blogComment.idcomment, (data) => {
-            setCommentBlogLike(data);
-        })
-        return commentBlogLikeCount;
-    }, [blogComment.idcomment])
+        useEffect(() => {
+            const commentBlogLikeCount = getCommentBlogLikeCount(Comment.idcomment, (data) => {
+                setCommentLike(data);
+            })
+            return commentBlogLikeCount;
+        }, [Comment.idcomment])
+    }
+    else
+    {
+        useEffect(() => {
+            const CheckIsLike = CheckUserLikeCommentFood(uid, Comment.idcomment, (data) => {
+                setIsLike(data);
+            });
+            return CheckIsLike;
+        }, [uid, Comment.idcomment])
+
+        useEffect(() => {
+            const commentLikeCount = getCommentFoodLikeCount(Comment.idcomment, (data) => {
+                setCommentLike(data);
+            })
+            return commentLikeCount;
+        }, [Comment.idcomment])
+    }
 
     const handleLikePress = async () => {
-        if (isLike) {
-            await DeleteFromCommentBlogLikes(blogComment.idcomment, uid);
-        }
-        else {
-            const data = {
-                id_comment: blogComment.idcomment,
-                id_user: uid,
-                date_like: firestore.Timestamp.now()
+        if (Comment.id_blog) 
+        {
+            if (isLike) 
+            {
+                await DeleteFromCommentBlogLikes(Comment.idcomment, uid);
             }
-            await AddToCommentBlogLikes(data);
+            else 
+            {
+                const data = {
+                    id_comment: Comment.idcomment,
+                    id_user: uid,
+                    date_like: firestore.Timestamp.now()
+                }
+                await AddToCommentBlogLikes(data);
+            }
+        }
+        else 
+        {
+            if (isLike) 
+            {
+                await DeleteFromCommentFoodLikes(Comment.idcomment, uid);
+            }
+            else 
+            {
+                const data = {
+                    id_comment: Comment.idcomment,
+                    id_user: uid,
+                    date_like: firestore.Timestamp.now()
+                }
+                await AddToCommentFoodLikes(data);
+            }
         }
         setIsLike(!isLike)
     }
-    
-    const formattedDate = moment(blogComment.date_comment.toDate()).format('DD/MM/YYYY');
+
+    const formattedDate = moment(Comment.date_comment.toDate()).format('DD/MM/YYYY');
 
     return (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomColor: 'rgba(0, 0, 0, 0.1)', borderBottomWidth: 2, backgroundColor: '#FFFFFF', paddingBottom: 10, paddingTop: 10 }}>
+                <TouchableOpacity
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                    className="p-2 rounded-full ml-2 bg-white"
+                >
+                    <MaterialCommunityIcons name="arrow-left" size={hp(3.5)} strokeWidth={4.5} color={'#4A4A4A'} />
+                </TouchableOpacity>
+                <Text style={{ fontSize: 20, marginLeft: 10, color: '#4A4A4A', flex: 1 }}>Trả lời</Text>
+            </View>
             <ScrollView
                 style={{ flex: 1, backgroundColor: 'white' }}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 80 }}
-            >
-                <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center', marginTop: hp(2), marginLeft: wp(2) }}>
-                    <ChevronLeftIcon size={hp(3.5)} strokeWidth={4.5} color={'#f64e32'} />
-                    <Text style={{ fontSize: 28, marginLeft: 80, color: '#f64e32' }}>Trả lời</Text>
-                </TouchableOpacity>
-
+            >          
                 <View style={{ paddingHorizontal: 4, flex: 1 }}>
-                    <View style={{ marginTop: hp(2), borderWidth: 0.5, borderColor: '#f2f2f2', borderRadius: 5, padding: 10, backgroundColor: '#f2f2f2' }}>
+                    <View style={{ borderWidth: 0.5, borderColor: '#f2f2f2', borderRadius: 5, padding: 10, backgroundColor: '#f2f2f2' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             {
                                 userImage != "" && (
@@ -99,11 +145,11 @@ const ReplyBlogCommentScreen = ({ route }) => {
                             </View>
                         </View>
                         <View style={{ marginTop: hp(0.5), marginLeft: 52 }}>
-                            <Text style={{ fontSize: 18 }}>{blogComment.comment_content}</Text>
+                            <Text style={{ fontSize: 18 }}>{Comment.comment_content}</Text>
                         </View>
                         <View style={{ marginTop: 20, marginLeft: 52, flexDirection: 'row', alignItems: 'center' }}>
                             <MaterialCommunityIcons name={isLike ? 'thumb-up' : 'thumb-up-outline'} size={22} style={{ marginRight: 10 }} color={isLike ? 'blue' : 'gray'} onPress={() => handleLikePress()} />
-                            <Text style={{ marginRight: 30 }}>{commentBlogLike}</Text>
+                            <Text style={{ marginRight: 30 }}>{commentLike}</Text>
                             <MaterialCommunityIcons name='comment-outline' size={22} onPress={() => {
                                 setShouldFocusTextInput(true);
                             }} />
@@ -111,17 +157,17 @@ const ReplyBlogCommentScreen = ({ route }) => {
                     </View>
 
                     <View>
-                        <ReplyComment idcomment={blogComment.idcomment} />
+                        <ReplyComment idcomment={Comment.idcomment} idblog={Comment.id_blog} idfood={Comment.id_food}/>
                     </View>
 
                 </View>
             </ScrollView>
 
             <View>
-                <AddReplyComment idcomment={blogComment.idcomment} idblog={blogComment.id_blog} shouldFocusTextInput={shouldFocusTextInput} setShouldFocusTextInput={setShouldFocusTextInput} />
+                <AddReplyComment idcomment={Comment.idcomment} idblog={Comment.id_blog} idfood={Comment.id_food} shouldFocusTextInput={shouldFocusTextInput} setShouldFocusTextInput={setShouldFocusTextInput} />
             </View>
         </KeyboardAvoidingView>
     );
 }
 
-export default ReplyBlogCommentScreen
+export default ReplyCommentScreen

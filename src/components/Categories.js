@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { getTypeOfFoodData } from '../services/FoodDataServices';
 
-
 const Categories = ({ onCategoryChange }) => {
   
   const [activeCategory, setActiveCategory] = useState(null);

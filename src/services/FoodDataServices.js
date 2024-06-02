@@ -68,32 +68,6 @@ export const deleteFoodDataInNotApproveFood = async (uid) => {
     }
 }
 
-export const getSaveCount = (id, callback) => {
-    try {
-        const collectionRef = firestore().collection('Foods').where(firestore.FieldPath.documentId(), '==', id);
-        return collectionRef.onSnapshot((snapShot) => {
-            let totalsave = 0;
-            snapShot.forEach((doc) => {
-                const data = doc.data();
-                totalsave += data.save_count;
-            })
-            callback(totalsave);
-        })
-    } catch (error) {
-        console.log(error);
-        return;
-    }
-}
-
-export const updateSaveCount = async (id, updateData) => {
-    try {
-        const collectionRef = firestore().collection('Foods').doc(id);
-        await collectionRef.update({ save_count: updateData });
-    } catch (error) {
-        console.log(error)
-    }
-}
-
 export const getNameTypeOfFood = (callback) => {
     try {
         const collectionRef = firestore().collection('FoodCategories');
@@ -122,7 +96,8 @@ export const getTypeOfFoodData = (callback) => {
                 const idloaimon = doc.id
                 loaimonan.push({ idloaimon, ...data });
             })
-            callback(loaimonan);
+            const loaimonanData = loaimonan.slice(0, 6);
+            callback(loaimonanData);
         });
     } catch (error) {
         console.error(error);
@@ -188,8 +163,6 @@ export const getFoodDataApprove = (callback) => {
                     const idmonan = doc.id;
                     monan.push({ idmonan, ...data });
                 });
-
-                // Sắp xếp món ăn theo ngày tháng năm gần nhất
                 monan.sort((a, b) => b.date_posted - a.date_posted);
                 callback(monan);
             });
@@ -292,7 +265,6 @@ export const getFoodDataInUserFoodHistory = (userId, callback) => {
             .where('id_user', '==', userId)
             .onSnapshot((querySnapshot) => {
                 if (querySnapshot.empty) {
-                    // Không có tài liệu phù hợp, trả về một mảng rỗng ngay lập tức
                     callback([]);
                     return;
                 }
@@ -303,7 +275,6 @@ export const getFoodDataInUserFoodHistory = (userId, callback) => {
                 }));
 
                 if (foodhistoryData.length === 0) {
-                    // Không có dữ liệu lịch sử món ăn, trả về một mảng rỗng ngay lập tức
                     callback([]);
                     return;
                 }
@@ -321,16 +292,13 @@ export const getFoodDataInUserFoodHistory = (userId, callback) => {
                             ...doc.data()
                         }));
 
-                        // Gắn lại date_seen cho từng món ăn từ UserFoodHistory để sắp xếp chính xác
                         const foodsWithDateSeen = foods.map(food => ({
                             ...food,
                             date_seen: foodhistoryData.find(item => item.id_food === food.idmonan).date_seen
                         }));
 
-                        // Sắp xếp món ăn theo date_seen
                         foodsWithDateSeen.sort((a, b) => b.date_seen.toDate() - a.date_seen.toDate());
 
-                        // Giới hạn chỉ lấy 6 món ăn gần nhất
                         const getSixFoodOnly = foodsWithDateSeen.slice(0, 6);
                         callback(getSixFoodOnly);
                     });
@@ -340,20 +308,52 @@ export const getFoodDataInUserFoodHistory = (userId, callback) => {
     }
 };
 
-export const getPosterFoodData = (uid, callback) => {
-    try 
-    {
+export const getAllPosterFoodData = (uid, callback) => {
+    try {
         const collectionRef = firestore().collection('Foods');
-        
-        return collectionRef.where('user_id', '==', uid)
-        .onSnapshot((snapShot) => {
-            const monan = []
-            snapShot.forEach((doc) => {
-                const data = doc.data();
-                const idmonan = doc.id;
-                monan.push({idmonan, ...data})
+        return collectionRef.where('user_id', '==', uid).where('status', '==', 'Approve')
+            .onSnapshot((snapShot) => {
+                const monan = []
+                snapShot.forEach((doc) => {
+                    const data = doc.data();
+                    const idmonan = doc.id;
+                    monan.push({ idmonan, ...data })
+                })
+                monan.sort((a, b) => b.date_posted - a.date_posted);
+                callback(monan);
             })
-            callback(monan);
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}
+export const getPosterFoodData = (uid, callback) => {
+    try {
+        const collectionRef = firestore().collection('Foods');
+
+        return collectionRef.where('user_id', '==', uid).where('status', '==', 'Approve')
+            .onSnapshot((snapShot) => {
+                const monan = []
+                snapShot.forEach((doc) => {
+                    const data = doc.data();
+                    const idmonan = doc.id;
+                    monan.push({ idmonan, ...data })
+                })
+                monan.sort((a, b) => b.date_posted - a.date_posted);
+                const foodData = monan.slice(0, 6);
+                callback(foodData);
+            })
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}
+
+export const getPosterFoodCount = (uid, callback) => {
+    try {
+        const collectionRef = firestore().collection('Foods');
+        return collectionRef.where('user_id', '==', uid).where('status', '==', 'Approve').onSnapshot((snapShot) => {
+            callback(snapShot.size);
         })
     } catch (error) {
         console.log(error)
@@ -369,7 +369,6 @@ export const getAllFoodDataInUserFoodHistory = (userId, callback) => {
             .where('id_user', '==', userId)
             .onSnapshot((querySnapshot) => {
                 if (querySnapshot.empty) {
-                    // Không có tài liệu phù hợp, trả về một mảng rỗng ngay lập tức
                     callback([]);
                     return;
                 }
@@ -377,7 +376,6 @@ export const getAllFoodDataInUserFoodHistory = (userId, callback) => {
                 const foodhistoryFoodId = querySnapshot.docs.map((doc) => doc.data().id_food);
 
                 if (foodhistoryFoodId.length === 0) {
-                    // Không có favoriteFoodIds, trả về một mảng rỗng ngay lập tức
                     callback([]);
                     return;
                 }
@@ -393,6 +391,7 @@ export const getAllFoodDataInUserFoodHistory = (userId, callback) => {
                             const idmonan = doc.id;
                             monan.push({ idmonan, ...data });
                         });
+                        monan.sort((a, b) => b.date_posted - a.date_posted);
                         callback(monan);
                     });
 
@@ -401,3 +400,219 @@ export const getAllFoodDataInUserFoodHistory = (userId, callback) => {
         console.log(error);
     }
 };
+
+export const getCommentFoodDetailData = (idfood, callback) => {
+    try {
+        const collectionRef = firestore().collection("FoodComments");
+        return collectionRef.where("id_food", "==", idfood).onSnapshot((snapShot) => {
+            const comment = []
+            snapShot.forEach((doc) => {
+                const data = doc.data();
+                const idcomment = doc.id;
+                comment.push({ idcomment, ...data });
+            })
+            comment.sort((a, b) => b.date_comment - a.date_comment);
+            const limitedCommment = comment.slice(0, 3);
+            callback(limitedCommment);
+        })
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const getAllCommentFoodData = (idfood, callback) => {
+    try {
+        const collectionRef = firestore().collection("FoodComments");
+        return collectionRef.where("id_food", "==", idfood).onSnapshot((snapShot) => {
+            const comment = []
+            snapShot.forEach((doc) => {
+                const data = doc.data();
+                const idcomment = doc.id;
+                comment.push({ idcomment, ...data });
+            })
+            const sortData = comment.sort((a, b) => b.date_comment - a.date_comment);
+            callback(sortData);
+        })
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const CheckUserLikeCommentFood = (userId, idComment, callback) => {
+    try {
+        const favoriteRef = firestore().collection('CommentFoodLikes');
+        return favoriteRef
+            .where('id_user', '==', userId)
+            .where('id_comment', '==', idComment)
+            .onSnapshot((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    callback(true);
+                }
+                else {
+                    callback(false);
+                }
+            })
+    } catch (error) {
+        console.log('Error checking favorite existence:', error);
+        callback(false);
+    }
+}
+
+export const getReplyFoodCommentCount = (idComment, callback) => {
+    try {
+        const collectionRef = firestore().collection("ReplyFoodComments");
+        const query = collectionRef.where("id_comment", "==", idComment);
+
+        return query.onSnapshot((querySnapshot) => {
+            const count = querySnapshot.size;
+            callback(count);
+        });
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+};
+
+export const getCommentFoodLikeCount = (idComment, callback) => {
+    try {
+        const collectionRef = firestore().collection("CommentFoodLikes");
+        const query = collectionRef.where("id_comment", "==", idComment);
+        return query.onSnapshot((querySnapshot) => {
+            const count = querySnapshot.size;
+            callback(count);
+        });
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+};
+
+export const DeleteFromCommentFoodLikes = async (idComment, userId) => {
+    try {
+        const collectionRef = firestore().collection('CommentFoodLikes')
+        const query = await collectionRef.where('id_comment', '==', idComment).where('id_user', '==', userId).get();
+        if (!query.empty) {
+            query.forEach((doc) => {
+                doc.ref.delete();
+            })
+            console.log('Đã xóa dữ liệu thành công');
+        } else {
+            console.log('Không tìm thấy dữ liệu cần xóa');
+        }
+
+    } catch (error) {
+        console.error('Lỗi khi xóa dữ liệu:', error);
+    }
+}
+
+export const AddToCommentFoodLikes = async (data) => {
+    try {
+        const FavoriteRef = firestore().collection('CommentFoodLikes');
+        await FavoriteRef.add(data);
+        console.log('Thêm vào bảng thành công ');
+    } catch (error) {
+        console.error('Lỗi khi thêm vào bảng:', error);
+    }
+}
+
+export const getAllReplyBlogCommentFood = (idcomment, callback) => {
+    try {
+        const collectionRef = firestore().collection("ReplyFoodComments");
+        return collectionRef.where("id_comment", "==", idcomment).onSnapshot((snapShot) => {
+            const comment = []
+            snapShot.forEach((doc) => {
+                const data = doc.data();
+                const idreply = doc.id;
+                comment.push({ idreply, ...data });
+            })
+            callback(comment);
+        })
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const CheckUserLikeReplyCommentFood = (userId, idReply, callback) => {
+    try {
+        const favoriteRef = firestore().collection('ReplyFoodCommentLikes');
+        return favoriteRef
+            .where('id_user', '==', userId)
+            .where('id_reply', '==', idReply)
+            .onSnapshot((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    callback(true);
+                }
+                else {
+                    callback(false);
+                }
+            })
+    } catch (error) {
+        console.log('Error checking favorite existence:', error);
+        callback(false);
+    }
+}
+
+export const getReplyFoodCommentLikeCount = (idReply, callback) => {
+    try {
+        const collectionRef = firestore().collection("ReplyFoodCommentLikes");
+        const query = collectionRef.where("id_reply", "==", idReply);
+        return query.onSnapshot((querySnapshot) => {
+            const count = querySnapshot.size;
+            callback(count);
+        });
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+};
+
+export const DeleteFromReplyFoodCommentLikes = async (idReply, userId) => {
+    try {
+        const collectionRef = firestore().collection('ReplyFoodCommentLikes')
+        const query = await collectionRef.where('id_reply', '==', idReply).where('id_user', '==', userId).get();
+        if (!query.empty) {
+            query.forEach((doc) => {
+                doc.ref.delete();
+            })
+            console.log('Đã xóa dữ liệu thành công');
+        } else {
+            console.log('Không tìm thấy dữ liệu cần xóa');
+        }
+
+    } catch (error) {
+        console.error('Lỗi khi xóa dữ liệu:', error);
+    }
+}
+
+export const AddToReplyFoodCommentLikes = async (data) => {
+    try {
+        const FavoriteRef = firestore().collection('ReplyBlogCommentLikes');
+        await FavoriteRef.add(data);
+        console.log('Thêm vào bảng thành công ');
+    } catch (error) {
+        console.error('Lỗi khi thêm vào bảng:', error);
+    }
+}
+
+export const addCommentFoodData = async (commentData) => {
+    try {
+        const collectionRef = firestore().collection('FoodComments');
+        await collectionRef.add(commentData);
+        console.log('Đã thêm comment mới vào Firestore');
+    } catch (error) {
+        console.error('Lỗi khi thêm comment mới vào Firestore:', error);
+    }
+}
+
+export const addReplyFoodCommentData = async (commentData) => {
+    try {
+        const collectionRef = firestore().collection('ReplyFoodComments');
+        await collectionRef.add(commentData);
+        console.log('Đã thêm comment mới vào Firestore');
+    } catch (error) {
+        console.error('Lỗi khi thêm comment mới vào Firestore:', error);
+    }
+}

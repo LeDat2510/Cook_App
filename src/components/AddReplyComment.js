@@ -4,22 +4,38 @@ import { addReplyBlogCommentData } from '../services/BlogDataServices';
 import firestore from '@react-native-firebase/firestore'
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { useSelector } from 'react-redux';
+import { addReplyFoodCommentData } from '../services/FoodDataServices';
 
-const AddReplyComment = ({ idcomment, idblog, shouldFocusTextInput, setShouldFocusTextInput}) => {
+const AddReplyComment = ({ idcomment, idblog, idfood, shouldFocusTextInput, setShouldFocusTextInput}) => {
 
     const uid = useSelector(state => state.userData.uid);
     const [commentText, setCommentText] = useState('');
 
     const addReplyComment = async () => {
-        const NewReplyComment = {
-            id_comment: idcomment,
-            id_blog: idblog,
-            id_user: uid,
-            comment_content: commentText,
-            date_comment: firestore.Timestamp.now()
+        if(idblog)
+        {
+            const NewReplyComment = {
+                id_comment: idcomment,
+                id_blog: idblog,
+                id_user: uid,
+                comment_content: commentText,
+                date_comment: firestore.Timestamp.now()
+            }
+            await addReplyBlogCommentData(NewReplyComment);
+            console.log("Thêm comment thành công");
         }
-        await addReplyBlogCommentData(NewReplyComment);
-        console.log("Thêm comment thành công");
+        else
+        {
+            const NewReplyComment = {
+                id_comment: idcomment,
+                id_food: idfood,
+                id_user: uid,
+                comment_content: commentText,
+                date_comment: firestore.Timestamp.now()
+            }
+            await addReplyFoodCommentData(NewReplyComment);
+            console.log("Thêm comment thành công");
+        }
     }
 
     const textInputRef = useRef(null);

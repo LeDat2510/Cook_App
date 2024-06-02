@@ -13,26 +13,12 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { getUserData } from '../services/UserDataServices';
 import PosterFood from '../components/PosterFood';
 import PosterBlog from '../components/PosterBlog';
+import PosterDetail from '../components/PosterDetail';
 
 const PosterDetailScreen = ({ route, navigation }) => {
     
     const { id_user } = route.params;
-    const [userName, setUserName] = useState('');
-    const [userImage, setUserImage] = useState('');
-    const [email, setEmail] = useState('');
-
-
-    useEffect(() => {
-        const data = getUserData(id_user, (userData) => {
-            if (userData) {
-                setUserName(userData.user_name)
-                setUserImage(userData.user_image)
-                setEmail(userData.email)
-            }
-        });
-        return data;
-    }, [id_user])
-
+    
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View
@@ -57,73 +43,7 @@ const PosterDetailScreen = ({ route, navigation }) => {
                 </View>
 
                 <ScrollView>
-                    <View
-                        style={{
-                            backgroundColor: '#FCFCFB',
-                            paddingVertical: 20,
-                            paddingHorizontal: 24,
-                        }}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'flex-start',
-                                justifyContent: 'space-between',
-                                marginBottom: 16,
-                            }}>
-                            <View style={{ position: 'relative', }}>
-                                <Image
-                                    alt=""
-                                    source={{
-                                        uri: userImage,
-                                    }}
-                                    style={{
-                                        width: 80,
-                                        height: 80,
-                                        borderRadius: 9999,
-                                    }} />
-                            </View>
-
-                            <View style={{
-                                flexGrow: 1,
-                                flexShrink: 1,
-                                flexBasis: 0,
-                                marginTop: 12,
-                                paddingLeft: 16,
-                            }}>
-                                <Text
-                                    style={{
-                                        fontSize: 28,
-                                        fontWeight: 'bold',
-                                        lineHeight: 32,
-                                        color: '#4A4A4A',
-                                        marginBottom: 6,
-                                    }}>
-                                    {userName}
-                                </Text>
-
-                                <Text
-                                    style={{
-                                        marginLeft: 2,
-                                        fontSize: 15,
-                                        fontWeight: '600',
-                                        color: '#767676',
-                                    }}>
-                                    {email}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <Text
-                            style={{
-                                fontSize: 14,
-                                fontWeight: '500',
-                                lineHeight: 18,
-                                color: '#778599',
-                            }}>
-                            Skilled in user research, wireframing, prototyping, and collaborating with cross-functional teams.
-                        </Text>
-
-                    </View>
+                    <PosterDetail iduser={id_user}/>
                     <View>
                         <ScrollView>
                             <PosterFood iduser={id_user} />
