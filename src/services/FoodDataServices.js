@@ -517,7 +517,7 @@ export const AddToCommentFoodLikes = async (data) => {
     }
 }
 
-export const getAllReplyBlogCommentFood = (idcomment, callback) => {
+export const getAllReplyCommentFood = (idcomment, callback) => {
     try {
         const collectionRef = firestore().collection("ReplyFoodComments");
         return collectionRef.where("id_comment", "==", idcomment).onSnapshot((snapShot) => {
@@ -589,7 +589,7 @@ export const DeleteFromReplyFoodCommentLikes = async (idReply, userId) => {
 
 export const AddToReplyFoodCommentLikes = async (data) => {
     try {
-        const FavoriteRef = firestore().collection('ReplyBlogCommentLikes');
+        const FavoriteRef = firestore().collection('ReplyFoodCommentLikes');
         await FavoriteRef.add(data);
         console.log('Thêm vào bảng thành công ');
     } catch (error) {

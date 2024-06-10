@@ -8,7 +8,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { AddToReplyBlogCommentLikes, CheckUserLikeReplyComment, DeleteFromReplyBlogCommentLikes, getAllReplyBlogComment, getReplyBlogCommentLikeCount } from '../services/BlogDataServices';
 import { useSelector } from 'react-redux';
-import { AddToReplyFoodCommentLikes, CheckUserLikeReplyCommentFood, DeleteFromReplyFoodCommentLikes, getAllReplyBlogCommentFood, getReplyFoodCommentLikeCount } from '../services/FoodDataServices';
+import { AddToReplyFoodCommentLikes, CheckUserLikeReplyCommentFood, DeleteFromReplyFoodCommentLikes, getAllReplyCommentFood, getReplyFoodCommentLikeCount } from '../services/FoodDataServices';
 import { elementAt } from 'rxjs';
 
 const ReplyComment = ({ idcomment, idblog, idfood }) => {
@@ -25,7 +25,7 @@ const ReplyComment = ({ idcomment, idblog, idfood }) => {
     }
     else {
         useEffect(() => {
-            const fetchReplyCommentData = getAllReplyBlogCommentFood(idcomment, (data) => {
+            const fetchReplyCommentData = getAllReplyCommentFood(idcomment, (data) => {
                 setReplyCommentData(data);
             })
             return fetchReplyCommentData;
@@ -68,6 +68,8 @@ const Card = ({ item }) => {
         });
         return data;
     }, [item.id_user])
+
+    console.log(item.id_food)
 
     if (item.id_blog) {
         useEffect(() => {
@@ -112,6 +114,7 @@ const Card = ({ item }) => {
                 const data = {
                     id_reply: item.idreply,
                     id_user: uid,
+                    id_blog: item.id_blog,
                     date_like: firestore.Timestamp.now()
                 }
                 await AddToReplyBlogCommentLikes(data);
@@ -128,6 +131,7 @@ const Card = ({ item }) => {
                 const data = {
                     id_reply: item.idreply,
                     id_user: uid,
+                    id_food: item.id_food,
                     date_like: firestore.Timestamp.now()
                 }
                 await AddToReplyFoodCommentLikes(data);

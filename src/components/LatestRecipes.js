@@ -22,14 +22,6 @@ const LatestRecipes = () => {
 
   return (
     <View className="mx-4 mt-3">
-      <Text style={{
-        fontSize: hp(3),
-      }}
-        className="font-semibold text-neutral-600 mb-4"
-      >
-        LatestRecipes
-      </Text>
-
       <View>
         <MasonryList
           data={latestFoodData}
