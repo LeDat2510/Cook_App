@@ -51,7 +51,7 @@
 ![Screenshot_1717312797](https://github.com/LeDat2510/Cook_App/assets/166104453/b01577be-e31b-498d-adf4-b923c98466e8)
 ![Screenshot_1717312838](https://github.com/LeDat2510/Cook_App/assets/166104453/ca3663ad-f799-483a-8dae-00ccd09be0f1)
 
-# Giao diện thông tin người đăng bài
+# Giao diện thông tin người đăng bài:
 ![Screenshot_1717314048](https://github.com/LeDat2510/Cook_App/assets/166104453/a08ce490-c02b-4dc1-a731-9ad38f00514d)
 
 # Giao diện xem tất cả các món của người đăng:
@@ -70,7 +70,7 @@
 ![Screenshot_1717314548](https://github.com/LeDat2510/Cook_App/assets/166104453/58f991c5-6b1e-415a-9f12-68195a3e0b0a)
 ![Screenshot_1717314583](https://github.com/LeDat2510/Cook_App/assets/166104453/3aa8fcd2-983b-4b25-ac40-3d5d51d00167)
 
-# Giao diện món đã xem
+# Giao diện món đã xem:
 ![Screenshot_1717314622](https://github.com/LeDat2510/Cook_App/assets/166104453/35dbd4d9-e642-4089-a2b4-0d125657ea5e)
 ![Screenshot_1717314603](https://github.com/LeDat2510/Cook_App/assets/166104453/44c344a2-27f9-4655-82fb-721c14a0469a)
 
