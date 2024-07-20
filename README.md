@@ -1,5 +1,5 @@
 # Admin:
-- [Admin](https://github.com/LeDat2510/Admin-Cook_App)
+- [Giao diện Admin](https://github.com/LeDat2510/Admin-Cook_App)
 # Authors:
 - [@LeDat2510](https://github.com/LeDat2510)
 - [@tcqdung20122002](https://github.com/tcqdung20122002)
