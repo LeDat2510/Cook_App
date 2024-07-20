@@ -1,5 +1,6 @@
 # Authors:
-https://github.com/LeDat2510
+- [@LeDat2510](https://github.com/LeDat2510)
+- [@tcqdung20122002](https://github.com/tcqdung20122002)
 # Giao diện:
 ## Giao diện chào mừng:
 ![Screenshot_1717311820](https://github.com/LeDat2510/Cook_App/assets/166104453/f6ba2cc2-ead7-43ee-84e9-40eb282fc26e)
